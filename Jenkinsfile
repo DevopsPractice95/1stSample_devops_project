@@ -1,34 +1,30 @@
 pipeline {
     agent any
-
+    environment {
+        AWS_DEFAULT_REGION = 'ap-south-1'
+        S3_BUCKET = 'punit-terraform-state'
+        DYNAMODB_TABLE = 'punit-terraform-lock'
+    }
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/DevopsPractice95/1stSample_devops_project.git'
+                git 'https://github.com/DevopsPractice95/1stSample_devops_project.git'
             }
         }
-
-        stage('Build') {
+        stage('Terraform Init') {
             steps {
-                // Your build steps here
-                sh 'echo Building...'
+                sh 'terraform init -backend-config="bucket=$S3_BUCKET" -backend-config="dynamodb_table=$DYNAMODB_TABLE"'
             }
         }
-
-        stage('Test') {
+        stage('Terraform Plan') {
             steps {
-                // Your test steps here
-                sh 'echo Testing...'
+                sh 'terraform plan'
             }
         }
-
-        stage('Deploy') {
+        stage('Terraform Apply') {
             steps {
-                // Your deploy steps here
-                sh 'echo Deploying...'
+                sh 'terraform apply -auto-approve'
             }
         }
     }
 }
-
-
